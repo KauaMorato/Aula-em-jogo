@@ -14,7 +14,10 @@ function entrar() {
         return;
     }
 
-    alert("Bem-Vindo, " + usuario + "!");
-
     localStorage.setItem("usuario", usuario);
+
+    document.getElementById("login").style.display = "none";
+    document.getElementById("jogo").style.display = "block";
+
+    document.getElementById("bemVindo").textContent = "Bem-vindo, " + usuario + "!";
 }

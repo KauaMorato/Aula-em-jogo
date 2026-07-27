@@ -157,3 +157,19 @@ header {
     border-radius: 8px;
     cursor: pointer;
 }
+
+.barra {
+    width: 400px;
+    height: 25px;
+    background-color: #dcdcdc;
+    border-radius: 15px;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.progresso {
+    width: 0%;
+    height: 100%;
+    background-color: #440bb4;
+    transition: 0.5s;
+}
