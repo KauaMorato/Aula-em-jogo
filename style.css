@@ -177,10 +177,20 @@ header {
 #gameArea {
     width: 800px;
     height: 450px;
-    background-color: #1e1e2f;
+
+    background-color: #024f03;
+
+    background-image:
+        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+
+    background-size: 32px 32px;
+
     border: 4px solid #440bb4;
     border-radius: 10px;
+
     margin: 20px auto;
+
     position: relative;
     overflow: hidden;
 }
