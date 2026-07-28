@@ -34,10 +34,41 @@
 
         <section id="jogar" class="secao">
             <h1>Jogar</h1>
-            <p>Tela do Jogo</p>
+
+            <button class="btn-jogar" onclick="mostrarLogin()">
+                Iniciar o Jogo
+            </button>
         </section>
 
-        <section id="Documentação" class="secao">
+        <section id="login" class="secao" style="display: none;">
+            <h2>Login</h2>
+
+            <input type="text"
+                   id="usuario"
+                   placeholder="Digite seu nome">
+
+            <button onclick="entrar()">
+                Entrar
+            </button>
+        </section>
+
+        <section id="jogo" class="secao" style="display: none;">
+            <h2>Tela do Jogo</h2>
+
+            <p id="bemVindo"></p>
+
+            <h3>Progresso</h3>
+
+            <div class="barra">
+                <div class="progresso"></div>
+            </div>
+
+            <button class="btn-jogar">
+                Começar Fase 1
+            </button>
+        </section>
+        
+        <section id="documentação" class="secao">
             <h1>Documentação dos códigos</h1>
             <p>Arquivo</p>
         </section>
@@ -45,6 +76,7 @@
         <section id="sobre" class="secao">
             <h1>Sobre o projeto</h1>
             <p>Descrição</p>
+        </section>
 
         <section id="creditos" class="secao">
             <h2>Créditos</h2>
