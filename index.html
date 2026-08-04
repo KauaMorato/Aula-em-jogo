@@ -41,15 +41,15 @@
         </section>
 
         <section id="login" class="secao" style="display: none;">
-            <h2>Login</h2>
+            <h2>Autenticação</h2>
 
-            <input type="text"
-                   id="usuario"
-                   placeholder="Digite seu nome">
+            <input type="text" id="usuario" placeholder="Digite seu usuário"><br>
+            <input type="password" id="senha" placeholder="Digite sua senha"><br>
 
-            <button onclick="entrar()">
-                Entrar
-            </button>
+            <button onclick="entrar()">Entrar</button>
+            <button onclick="cadastrar()">Cadastrar</button>
+
+            <p id ="mensagem-auth" style="margin-top: 15px; font-weight: bold;"></p>
         </section>
 
         <section id="jogo" class="secao" style="display: none;">
@@ -57,19 +57,18 @@
 
             <p id="bemVindo"></p>
 
-            <h3>Progresso</h3>
+            <h3>Sua Fase: <span id="faseAtual"></span></h3>
 
             <div class="barra">
-                <div class="progresso"></div>
+                <div class="progresso" id="barraProgresso"></div>
             </div>
 
             <div id="gameArea">
                 <div id="player"></div>
             </div>
 
-            <button class="btn-jogar">
-                Começar Fase 1
-            </button>
+            <button class="btn-jogar" onclick="avançarFase()">Avançar Fase</button>
+            <button class="btn-jogar" style="background-color: #c0392b;" onclick="logout()">Sair</button>
         </section>
         
         <section id="documentação" class="secao">

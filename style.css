@@ -140,22 +140,29 @@ header {
     text-align: center;
 }
 
-#usuario {
-    padding: 10px;
-    width: 250px;
+#login input {
+    padding: 12px;
+    width: 100%;
+    max-width: 300px;
     border-radius: 8px;
     border: 1px solid #ccc;
-    margin-top: 15px;
+    margin: 8px auto;
+    display: block; /* Força a senha a ficar em baixo do usuário com espaço */
 }
 
 #login button {
-    margin-left: 10px;
+    margin: 15px 5px 0 5px; /* Dá espaço acima dos botões e entre eles */
     padding: 10px 20px;
     background: #440bb4;
     color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
+    transition: 0.3s;
+}
+
+#login button:hover {
+    background: #5f1cff;
 }
 
 .barra {
@@ -203,4 +210,19 @@ header {
     position: absolute;
     left: 50px;
     top: 50px;
+}
+
+#jogo h2, 
+#jogo h3, 
+#jogo p {
+    margin-bottom: 15px; /* Separa o título da fase */
+}
+
+.barra {
+    width: 400px;
+    height: 25px;
+    background-color: #dcdcdc;
+    border-radius: 15px;
+    overflow: hidden;
+    margin: 20px 0 30px 0; /* Dá espaço suficiente acima e abaixo da barra */
 }
