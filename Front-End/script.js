@@ -7,6 +7,7 @@ let fase = 1;
 
 function mostrarLogin() {
     document.getElementById("login").style.display = "block";
+    document.getElementById("jogar").style.display = "none";
 }
 
 async function entrar() {
@@ -35,6 +36,7 @@ async function entrar() {
 
             // Esconde o login e exibe a tela do jogo
             document.getElementById("login").style.display = "none";
+            document.getElementById("jogar").style.display = "none";
             document.getElementById("jogo").style.display = "block";
             document.getElementById("bemVindo").textContent = "Bem-vindo, " + usuario + "!";
             
@@ -141,7 +143,8 @@ async function salvarProgresso(novaFase) {
 
 // Chamatória ao clicar no botão (+1)
 function avancarFase() {
-    salvarProgresso(fase);
+    const novaFase = fase + 1;
+    salvarProgresso(novaFase);
 }
 
 // Atualiza o texto da fase e a barra gráfica
@@ -159,3 +162,7 @@ function logout() {
     document.getElementById("jogo").style.display = "none";
     document.getElementById("jogar").style.display = "block";
 }
+
+menuBtn.addEventListener('click', () => {
+    navMenu.classList.toggle('active');
+});
