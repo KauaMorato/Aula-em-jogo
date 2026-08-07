@@ -2,6 +2,10 @@ html {
     scroll-behavior: smooth;
 }
 
+section[id] {
+    scroll-margin-top: 90px;
+}
+
 * {
     margin: 0;
     padding: 0;

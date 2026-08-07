@@ -1,8 +1,4 @@
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-
-const SUPABASE_URL = "https://blwrjkpzimpxbubrgcna.supabase.co/rest/v1/";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsd3Jqa3B6aW1weGJ1YnJnY25hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMjc0MTEsImV4cCI6MjEwMTcwMzQxMX0.MNPXNuvw06TG2jRZKKuKb61_fdBEwVjAIcspeQ425bw";
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const API_URL = "http://127.0.0.1:5000/api";
 
 const menuBtn = document.getElementById("menuBtn");
 const navMenu = document.getElementById("navMenu");
@@ -10,6 +6,12 @@ const navMenu = document.getElementById("navMenu");
 let usuarioAtual = null;
 let fase = 1;
 let authModo = "login";
+
+function ajustarMensagem(texto, cor = "red") {
+    const msg = document.getElementById("mensagem-auth");
+    msg.textContent = texto;
+    msg.style.color = cor;
+}
 
 function alternarModo(modo) {
     authModo = modo;
@@ -38,43 +40,35 @@ function mostrarLogin() {
     document.getElementById("login").style.display = "flex";
     document.getElementById("jogar").style.display = "none";
     document.getElementById("jogo").style.display = "none";
+    ajustarMensagem("");
     alternarModo("login");
+    document.getElementById("usuario").focus();
 }
 
 async function entrar() {
     const usuario = document.getElementById("usuario").value.trim();
     const senha = document.getElementById("senha").value;
-    const msg = document.getElementById("mensagem-auth");
 
     if (!usuario || !senha) {
-        msg.innerText = "Preencha usuário e senha!";
-        msg.style.color = "red";
+        ajustarMensagem("Preencha usuário e senha!");
         return;
     }
 
-    const emailFicticio = `${usuario}@jogo.com`;
-
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: emailFicticio,
-            password: senha,
+        const resposta = await fetch(`${API_URL}/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ usuario, senha })
         });
 
-        if (error) throw error;
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(dados.erro || "Erro ao entrar.");
+        }
 
         usuarioAtual = usuario;
-
-        const { data: cadastroData, error: dbError } = await supabase
-            .from("Cadastro")
-            .select("fase")
-            .eq("id", data.user.id)
-            .single();
-
-        if (!dbError && cadastroData) {
-            fase = cadastroData.fase;
-        } else {
-            fase = 1;
-        }
+        fase = dados.progresso?.fase || 1;
 
         document.getElementById("login").style.display = "none";
         document.getElementById("jogar").style.display = "none";
@@ -82,9 +76,9 @@ async function entrar() {
         document.getElementById("bemVindo").textContent = "Bem-vindo, " + usuario + "!";
 
         atualizarInterfaceProgresso();
-    } catch (e) {
-        msg.style.color = "red";
-        msg.innerText = "Usuário ou senha incorretos.";
+        ajustarMensagem("Login realizado com sucesso!", "green");
+    } catch (erro) {
+        ajustarMensagem(erro.message || "Usuário ou senha incorretos.");
     }
 }
 
@@ -128,62 +122,58 @@ document.addEventListener("keydown", function (event) {
 async function cadastrar() {
     const usuario = document.getElementById("usuario").value.trim();
     const senha = document.getElementById("senha").value;
-    const msg = document.getElementById("mensagem-auth");
 
     if (!usuario || !senha) {
-        msg.innerText = "Preencha usuário e senha!";
-        msg.style.color = "red";
+        ajustarMensagem("Preencha usuário e senha!");
         return;
     }
 
-    const emailFicticio = `${usuario}@jogo.com`;
-
     try {
-        const { data, error } = await supabase.auth.signUp({
-            email: emailFicticio,
-            password: senha,
+        const resposta = await fetch(`${API_URL}/cadastrar`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ usuario, senha })
         });
 
-        if (error) throw error;
+        const dados = await resposta.json();
 
-        const { error: dbError } = await supabase
-            .from("Cadastro")
-            .insert([{ id: data.user.id, usuario: usuario, fase: 1 }]);
+        if (!resposta.ok) {
+            throw new Error(dados.erro || "Erro ao cadastrar.");
+        }
 
-        if (dbError) throw dbError;
-
-        msg.style.color = "green";
-        msg.innerText = "Cadastrado com sucesso! Clique em Entrar.";
+        ajustarMensagem("Cadastrado com sucesso! Clique em Entrar.", "green");
         alternarModo("login");
-    } catch (e) {
-        msg.style.color = "red";
-        msg.innerText = "Erro ao cadastrar: " + e.message;
+    } catch (erro) {
+        ajustarMensagem(erro.message || "Erro ao cadastrar.");
     }
 }
 
 async function salvarProgresso(novaFase) {
-    try {
-        const { error } = await supabase
-            .from("Cadastro")
-            .update({ fase: novaFase })
-            .eq("usuario", usuarioAtual);
+    if (!usuarioAtual) return;
 
-        if (!error) {
+    try {
+        const resposta = await fetch(`${API_URL}/progresso`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ usuario: usuarioAtual, fase: novaFase })
+        });
+
+        if (resposta.ok) {
             fase = novaFase;
             atualizarInterfaceProgresso();
         }
-    } catch (e) {
-        console.error("Erro ao salvar progresso no Supabase", e);
+    } catch (erro) {
+        console.error("Erro ao salvar progresso", erro);
     }
 }
 
-async function logout() {
-    await supabase.auth.signOut();
+function logout() {
     usuarioAtual = null;
     fase = 1;
     document.getElementById("jogo").style.display = "none";
     document.getElementById("jogar").style.display = "block";
     document.getElementById("login").style.display = "none";
+    ajustarMensagem("");
 }
 
 function avancarFase() {
