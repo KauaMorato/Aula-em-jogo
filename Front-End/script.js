@@ -1,6 +1,11 @@
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+const SUPABASE_URL = "https://blwrjkpzimpxbubrgcna.supabase.co/rest/v1/";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsd3Jqa3B6aW1weGJ1YnJnY25hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMjc0MTEsImV4cCI6MjEwMTcwMzQxMX0.MNPXNuvw06TG2jRZKKuKb61_fdBEwVjAIcspeQ425bw";
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
 const menuBtn = document.getElementById('menuBtn');
 const navMenu = document.getElementById('navMenu');
-const API_URL = "http://127.0.0.1:5000/api";
 
 let usuarioAtual = null;
 let fase = 1;
@@ -10,8 +15,9 @@ function mostrarLogin() {
     document.getElementById("jogar").style.display = "none";
 }
 
+// Função de login usando o Supabase
 async function entrar() {
-    const usuario = document.getElementById("usuario").value;
+    const usuario = document.getElementById("usuario").value.trim();
     const senha = document.getElementById("senha").value;
     const msg = document.getElementById("mensagem-auth");
 
@@ -21,33 +27,40 @@ async function entrar() {
         return;
     }
 
+    const emailFicticio = `${usuario}@jogo.com`;
+
     try {
-        const res = await fetch(`${API_URL}/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ usuario, senha })
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: emailFicticio,
+            password: senha,
         });
 
-        const data = await res.json();
+        if (error) throw error;
 
-        if (res.ok) {
-            usuarioAtual = usuario;
-            fase = data.progresso.fase; // Pega a fase salva no banco do Python
+        usuarioAtual = usuario;
 
-            // Esconde o login e exibe a tela do jogo
-            document.getElementById("login").style.display = "none";
-            document.getElementById("jogar").style.display = "none";
-            document.getElementById("jogo").style.display = "block";
-            document.getElementById("bemVindo").textContent = "Bem-vindo, " + usuario + "!";
-            
-            atualizarInterfaceProgresso();
+        const { data: cadastroData, error: dbError } = await supabase
+            .from("Cadastro")
+            .select("fase")
+            .eq("id", data.user.id)
+            .single();
+
+        if (!dbError && cadastroData) {
+            fase = cadastroData.fase;
         } else {
-            msg.style.color = "red";
-            msg.innerText = data.erro || "Usuário ou senha incorretos.";
+            fase = 1;
         }
+
+        document.getElementById("login").style.display = "none";
+        document.getElementById("jogar").style.display = "none";
+        document.getElementById("jogo").style.display = "block";
+        document.getElementById("bemVindo").textContent = "Bem-vindo, " + usuario + "!";
+        
+        atualizarInterfaceProgresso();
+
     } catch (e) {
         msg.style.color = "red";
-        msg.innerText = "Erro ao conectar com o servidor Python.";
+        msg.innerText = "Usuário ou senha incorretos.";
     }
 }
 
@@ -91,7 +104,7 @@ document.addEventListener("keydown", function(event){
 });
 
 async function cadastrar() {
-    const usuario = document.getElementById("usuario").value;
+    const usuario = document.getElementById("usuario").value.trim();
     const senha = document.getElementById("senha").value;
     const msg = document.getElementById("mensagem-auth");
 
@@ -101,68 +114,65 @@ async function cadastrar() {
         return;
     }
 
+    const emailFicticio = `${usuario}@jogo.com`;
+
     try {
-        const res = await fetch(`${API_URL}/cadastrar`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ usuario, senha })
+        const { data, error } = await supabase.auth.signUp({
+            email: emailFicticio,
+            password: senha,
         });
 
-        const data = await res.json();
+        if (error) throw error;
 
-        if (res.ok) {
-            msg.style.color = "green";
-            msg.innerText = "Cadastrado com sucesso! Clique em Entrar.";
-        } else {
-            msg.style.color = "red";
-            msg.innerText = data.erro || "Erro ao cadastrar.";
-        }
+        const { error: dbError } = await supabase
+            .from("Cadastro")
+            .insert([
+                { id: data.user.id, usuario: usuario, fase: 1 }
+            ]);
+
+        if (dbError) throw dbError;
+
+        msg.style.color = "green";
+        msg.innerText = "Cadastrado com sucesso! Clique em Entrar.";
+
     } catch (e) {
         msg.style.color = "red";
-        msg.innerText = "Erro: certifique-se de que o Python está rodando!";
+        msg.innerText = "Erro ao cadastrar: " + e.message;
     }
 }
 
-// Salva a nova fase no Python (SQLite)
 async function salvarProgresso(novaFase) {
     try {
-        const res = await fetch(`${API_URL}/progresso`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ usuario: usuarioAtual, fase: novaFase })
-        });
+        const { error } = await supabase
+            .from("Cadastro")
+            .update({ fase: novaFase })
+            .eq("usuario", usuarioAtual);
 
-        if (res.ok) {
+        if (!error) {
             fase = novaFase;
             atualizarInterfaceProgresso();
         }
     } catch (e) {
-        console.error("Erro ao salvar progresso no banco", e);
+        console.error("Erro ao salvar progresso no Supabase", e);
     }
 }
 
-// Chamatória ao clicar no botão (+1)
-function avancarFase() {
-    const novaFase = fase + 1;
-    salvarProgresso(novaFase);
-}
-
-// Atualiza o texto da fase e a barra gráfica
-function atualizarInterfaceProgresso() {
-    document.getElementById("faseAtual").innerText = fase;
-    // Com (fase - 1), a Fase 1 resulta em 0% de preenchimento
-    const porcentagem = Math.min((fase - 1) * 10, 100); 
-    document.getElementById("barraProgresso").style.width = `${porcentagem}%`;
-}
-
-// Função para deslogar
-function logout() {
+async function logout() {
+    await supabase.auth.signOut();
     usuarioAtual = null;
     fase = 1;
     document.getElementById("jogo").style.display = "none";
     document.getElementById("jogar").style.display = "block";
 }
 
-menuBtn.addEventListener('click', () => {
-    navMenu.classList.toggle('active');
-});
+function avancarFase() {
+    const novaFase = fase + 1;
+    salvarProgresso(novaFase);
+}
+
+function atualizarInterfaceProgresso() {
+    document.getElementById("faseAtual").innerText = fase;
+    // Com (fase - 1), a Fase 1 resulta em 0% de preenchimento
+    const porcentagem = Math.min((fase - 1) * 10, 100); 
+    document.getElementById("barraProgresso").style.width = `${porcentagem}%`;
+}
