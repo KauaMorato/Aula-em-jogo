@@ -1,13 +1,17 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+import os
 import sqlite3
+from flask import Flask, jsonify, request, send_from_directory
+from flask_cors import CORS
 
-app = Flask(__name__)
-CORS(app) 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FRONTEND_DIR = os.path.join(BASE_DIR, "..", "Front-End")
+FRONTEND_DIR = os.path.abspath(FRONTEND_DIR)
+DB_NAME = os.path.join(BASE_DIR, "jogo_python.db")
 
-DB_NAME = "jogo_python.db"
+app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
+CORS(app)
 
-# Função que cria a tabela no Banco de Dados automaticamente
+
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -22,7 +26,18 @@ def init_db():
     conn.commit()
     conn.close()
 
+
 init_db()
+
+
+@app.route("/")
+def index():
+    return send_from_directory(FRONTEND_DIR, "index.html")
+
+
+@app.route("/<path:nome_arquivo>")
+def servir_arquivo(nome_arquivo):
+    return send_from_directory(FRONTEND_DIR, nome_arquivo)
 
 # Rota para CADASTRAR novo usuário
 @app.route('/api/cadastrar', methods=['POST'])
