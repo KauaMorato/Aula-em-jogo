@@ -4,18 +4,43 @@ const SUPABASE_URL = "https://blwrjkpzimpxbubrgcna.supabase.co/rest/v1/";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsd3Jqa3B6aW1weGJ1YnJnY25hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMjc0MTEsImV4cCI6MjEwMTcwMzQxMX0.MNPXNuvw06TG2jRZKKuKb61_fdBEwVjAIcspeQ425bw";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const menuBtn = document.getElementById('menuBtn');
-const navMenu = document.getElementById('navMenu');
+const menuBtn = document.getElementById("menuBtn");
+const navMenu = document.getElementById("navMenu");
 
 let usuarioAtual = null;
 let fase = 1;
+let authModo = "login";
 
-function mostrarLogin() {
-    document.getElementById("login").style.display = "block";
-    document.getElementById("jogar").style.display = "none";
+function alternarModo(modo) {
+    authModo = modo;
+
+    const tabLogin = document.getElementById("tabLogin");
+    const tabCadastro = document.getElementById("tabCadastro");
+    const submitButton = document.getElementById("authSubmitBtn");
+    const title = document.getElementById("authTitle");
+    const subtitle = document.getElementById("authSubtitle");
+
+    const isLogin = modo === "login";
+
+    tabLogin.classList.toggle("active", isLogin);
+    tabCadastro.classList.toggle("active", !isLogin);
+
+    title.textContent = isLogin ? "Entrar na sua conta" : "Crie sua conta";
+    subtitle.textContent = isLogin
+        ? "Acesse seu progresso e continue a jornada."
+        : "Cadastre-se para salvar seu avanço no jogo.";
+
+    submitButton.textContent = isLogin ? "Entrar" : "Cadastrar";
+    submitButton.onclick = isLogin ? entrar : cadastrar;
 }
 
-// Função de login usando o Supabase
+function mostrarLogin() {
+    document.getElementById("login").style.display = "flex";
+    document.getElementById("jogar").style.display = "none";
+    document.getElementById("jogo").style.display = "none";
+    alternarModo("login");
+}
+
 async function entrar() {
     const usuario = document.getElementById("usuario").value.trim();
     const senha = document.getElementById("senha").value;
@@ -55,22 +80,19 @@ async function entrar() {
         document.getElementById("jogar").style.display = "none";
         document.getElementById("jogo").style.display = "block";
         document.getElementById("bemVindo").textContent = "Bem-vindo, " + usuario + "!";
-        
-        atualizarInterfaceProgresso();
 
+        atualizarInterfaceProgresso();
     } catch (e) {
         msg.style.color = "red";
         msg.innerText = "Usuário ou senha incorretos.";
     }
 }
 
-//Movimento do personagem provisório
-
 let posX = 50;
 let posY = 50;
 
-document.addEventListener("keydown", function(event){
-    if (document.getElementById ("jogo").style.display !=="block") return;
+document.addEventListener("keydown", function (event) {
+    if (document.getElementById("jogo").style.display !== "block") return;
 
     if (
         event.key === "ArrowUp" ||
@@ -83,19 +105,19 @@ document.addEventListener("keydown", function(event){
 
     const player = document.getElementById("player");
 
-    if(event.key === "ArrowRight" && posX < 760){
+    if (event.key === "ArrowRight" && posX < 760) {
         posX += 10;
     }
 
-    if(event.key === "ArrowLeft" && posX > 0){
+    if (event.key === "ArrowLeft" && posX > 0) {
         posX -= 10;
     }
 
-    if(event.key === "ArrowUp" && posY > 0){
+    if (event.key === "ArrowUp" && posY > 0) {
         posY -= 10;
     }
 
-    if(event.key === "ArrowDown" && posY < 410){
+    if (event.key === "ArrowDown" && posY < 410) {
         posY += 10;
     }
 
@@ -126,15 +148,13 @@ async function cadastrar() {
 
         const { error: dbError } = await supabase
             .from("Cadastro")
-            .insert([
-                { id: data.user.id, usuario: usuario, fase: 1 }
-            ]);
+            .insert([{ id: data.user.id, usuario: usuario, fase: 1 }]);
 
         if (dbError) throw dbError;
 
         msg.style.color = "green";
         msg.innerText = "Cadastrado com sucesso! Clique em Entrar.";
-
+        alternarModo("login");
     } catch (e) {
         msg.style.color = "red";
         msg.innerText = "Erro ao cadastrar: " + e.message;
@@ -163,6 +183,7 @@ async function logout() {
     fase = 1;
     document.getElementById("jogo").style.display = "none";
     document.getElementById("jogar").style.display = "block";
+    document.getElementById("login").style.display = "none";
 }
 
 function avancarFase() {
@@ -172,7 +193,23 @@ function avancarFase() {
 
 function atualizarInterfaceProgresso() {
     document.getElementById("faseAtual").innerText = fase;
-    // Com (fase - 1), a Fase 1 resulta em 0% de preenchimento
-    const porcentagem = Math.min((fase - 1) * 10, 100); 
+    const porcentagem = Math.min((fase - 1) * 10, 100);
     document.getElementById("barraProgresso").style.width = `${porcentagem}%`;
 }
+
+if (menuBtn && navMenu) {
+    menuBtn.addEventListener("click", () => {
+        navMenu.classList.toggle("active");
+    });
+
+    document.querySelectorAll(".nav-menu a").forEach((link) => {
+        link.addEventListener("click", () => navMenu.classList.remove("active"));
+    });
+}
+
+window.mostrarLogin = mostrarLogin;
+window.entrar = entrar;
+window.cadastrar = cadastrar;
+window.avançarFase = avancarFase;
+window.logout = logout;
+window.alternarModo = alternarModo;
