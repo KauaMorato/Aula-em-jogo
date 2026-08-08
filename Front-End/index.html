@@ -19,7 +19,7 @@
         <nav class="nav-menu" id="navMenu">
             <ul>
                 <li><a href="#jogar">Jogar</a></li>
-                <li><a href="#documentacao">Documentação</a></li>
+                <li class="nav-doc-item" style="display: none;"><a href="#documentacao">Documentação</a></li>
                 <li><a href="#sobre">Sobre</a></li>
                 <li><a href="#creditos">Créditos</a></li>
             </ul>
@@ -27,28 +27,28 @@
     </header>
 
     <main>
-        <section id="jogar" class="secao hero-section">
+        <section id="jogar" class="secao hero-section" style="display: none;">
             <h1>Bem-vindo ao jogo</h1>
-            <p>Entre na sua conta para salvar seu progresso e continuar a aventura.</p>
+            <p>Uma maneira simples e eficaz de aprender programação</p>
             <button class="btn-jogar" id="btnIniciarJogo" type="button" onclick="mostrarLogin()">
                 Iniciar o Jogo
             </button>
         </section>
 
-        <section id="login" class="secao auth-section" style="display: none;">
+        <section id="login" class="secao auth-section" style="display: flex;">
             <div class="auth-card">
                 <div class="auth-tabs">
-                    <button class="auth-tab active" id="tabLogin" type="button" onclick="alternarModo('login')">Entrar</button>
-                    <button class="auth-tab" id="tabCadastro" type="button" onclick="alternarModo('cadastro')">Cadastrar</button>
+                    <button class="auth-tab active" id="tabLogin" type="button">Entrar</button>
+                    <button class="auth-tab" id="tabCadastro" type="button">Cadastrar</button>
                 </div>
 
                 <h2 id="authTitle">Entrar na sua conta</h2>
-                <p id="authSubtitle">Acesse seu progresso e continue a jornada.</p>
+                <p id="authSubtitle">Acesse seu progresso e continue a sua jornada.</p>
 
                 <div class="auth-form">
                     <input type="text" id="usuario" placeholder="Digite seu usuário">
                     <input type="password" id="senha" placeholder="Digite sua senha">
-                    <button class="auth-submit" id="authSubmitBtn" type="button" onclick="entrar()">Entrar</button>
+                    <button class="auth-submit" id="authSubmitBtn" type="button">Entrar</button>
                     <p id="mensagem-auth" class="mensagem-auth"></p>
                 </div>
             </div>
@@ -73,13 +73,15 @@
             <button class="btn-jogar" style="background-color: #c0392b;" onclick="logout()">Sair</button>
         </section>
 
-        <section id="documentacao" class="secao">
-            <div>
-                <h1>Documentação dos códigos</h1>
-                <p>Clique para baixar</p>
+        <section id="documentacao" class="secao" style="display: none;">
+            <div class="documentacao-conteudo">
+                <div>
+                    <h1>Documentação dos códigos</h1>
+                    <p>Materiais essenciais para a sua jornada.</p>
+                </div>
+                <br/>
+                <a href="../Arquivo Base.pdf" download="Arquivo Base.pdf">Documentação inicial</a>
             </div>
-            <br/>
-            <a href="../Arquivo Base.pdf" download="Arquivo Base.pdf">Documentação inicial</a>
         </section>
 
         <section id="sobre" class="secao">
@@ -98,8 +100,8 @@
             <div class="footer-col">
                 <h4>Navegação</h4>
                 <ul class="footer-links">
-                    <li><a href="#jogar">Jogar</a></li>
-                    <li><a href="#documentacao">Documentação</a></li>
+                    <li><a href="#login">Entrar</a></li>
+                    <li class="footer-doc-item" style="display: none;"><a href="#documentacao">Documentação</a></li>
                     <li><a href="#sobre">Sobre o Projeto</a></li>
                     <li><a href="#creditos">Créditos</a></li>
                 </ul>

@@ -20,10 +20,26 @@ const db = getFirestore(app);
 
 const menuBtn = document.getElementById("menuBtn");
 const navMenu = document.getElementById("navMenu");
+const tabLogin = document.getElementById("tabLogin");
+const tabCadastro = document.getElementById("tabCadastro");
+const submitButton = document.getElementById("authSubmitBtn");
 
 let usuarioAtual = null;
 let fase = 1;
 let authModo = "login";
+
+function atualizarEstadoDocumentacao() {
+    const secaoDocumentacao = document.getElementById("documentacao");
+    const linksDocumentacao = document.querySelectorAll(".nav-doc-item, .footer-doc-item");
+
+    if (secaoDocumentacao) {
+        secaoDocumentacao.style.display = usuarioAtual ? "block" : "none";
+    }
+
+    linksDocumentacao.forEach((item) => {
+        item.style.display = usuarioAtual ? "block" : "none";
+    });
+}
 
 function ajustarMensagem(texto, cor = "red") {
     const msg = document.getElementById("mensagem-auth");
@@ -36,9 +52,6 @@ function ajustarMensagem(texto, cor = "red") {
 function alternarModo(modo) {
     authModo = modo;
 
-    const tabLogin = document.getElementById("tabLogin");
-    const tabCadastro = document.getElementById("tabCadastro");
-    const submitButton = document.getElementById("authSubmitBtn");
     const title = document.getElementById("authTitle");
     const subtitle = document.getElementById("authSubtitle");
 
@@ -56,15 +69,14 @@ function alternarModo(modo) {
 
     if (submitButton) {
         submitButton.textContent = isLogin ? "Entrar" : "Cadastrar";
-        submitButton.onclick = isLogin ? entrar : cadastrar;
     }
 }
 
-function mostrarLogin() {
+function mostrarLogin(mensagem = "") {
     document.getElementById("login").style.display = "flex";
     document.getElementById("jogar").style.display = "none";
     document.getElementById("jogo").style.display = "none";
-    ajustarMensagem("");
+    ajustarMensagem(mensagem);
     alternarModo("login");
     document.getElementById("usuario").focus();
 }
@@ -104,6 +116,7 @@ async function entrar() {
         document.getElementById("bemVindo").textContent = "Bem-vindo, " + usuario + "!";
 
         atualizarInterfaceProgresso();
+        atualizarEstadoDocumentacao();
         ajustarMensagem("Login realizado com sucesso!", "green");
     } catch (erro) {
         ajustarMensagem("Usuário ou senha incorretos.");
@@ -126,6 +139,7 @@ async function cadastrar() {
         // Cria usuário no Firebase Auth
         const credencial = await createUserWithEmailAndPassword(auth, emailFicticio, senha);
         const user = credencial.user;
+        usuarioAtual = user.uid;
 
         // Cria o registro da fase no Firestore
         await setDoc(doc(db, "Cadastro", user.uid), {
@@ -135,6 +149,7 @@ async function cadastrar() {
 
         ajustarMensagem("Cadastrado com sucesso! Clique em Entrar.", "green");
         alternarModo("login");
+        atualizarEstadoDocumentacao();
     } catch (erro) {
         if (erro.code === 'auth/weak-password') {
             ajustarMensagem("A senha deve ter no mínimo 6 caracteres!");
@@ -166,10 +181,8 @@ async function logout() {
     await signOut(auth);
     usuarioAtual = null;
     fase = 1;
-    document.getElementById("jogo").style.display = "none";
-    document.getElementById("jogar").style.display = "block";
-    document.getElementById("login").style.display = "none";
-    ajustarMensagem("");
+    mostrarLogin("");
+    atualizarEstadoDocumentacao();
 }
 
 function avancarFase() {
@@ -219,6 +232,27 @@ if (menuBtn && navMenu) {
         link.addEventListener("click", () => navMenu.classList.remove("active"));
     });
 }
+
+if (tabLogin) {
+    tabLogin.addEventListener("click", () => alternarModo("login"));
+}
+
+if (tabCadastro) {
+    tabCadastro.addEventListener("click", () => alternarModo("cadastro"));
+}
+
+if (submitButton) {
+    submitButton.addEventListener("click", () => {
+        if (authModo === "login") {
+            entrar();
+        } else {
+            cadastrar();
+        }
+    });
+}
+
+atualizarEstadoDocumentacao();
+mostrarLogin();
 
 // EXPORTAÇÃO GLOBAL
 window.mostrarLogin = mostrarLogin;
