@@ -1,0 +1,6 @@
+[project]
+name = "projeto-tcc"
+requires-python = ">=3.11"
+
+[tool.vercel]
+entrypoint = "app:app"

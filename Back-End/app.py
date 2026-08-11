@@ -1,14 +1,19 @@
 import os
+from pathlib import Path
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from supabase import create_client, Client
+from dotenv import load_dotenv
+
+basedir = Path(__file__).resolve().parent
+load_dotenv(basedir / ".env")
 
 app = Flask(__name__)
 CORS(app)
 
 # Configuração Segura via Variáveis de Ambiente
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://blwrjkpzimpxbubrgcna.supabase.co/rest/v1/ ")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsd3Jqa3B6aW1weGJ1YnJnY25hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMjc0MTEsImV4cCI6MjEwMTcwMzQxMX0.MNPXNuvw06TG2jRZKKuKb61_fdBEwVjAIcspeQ425bw")
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "SUA_URL_DO_SUPABASE")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "SUA_CHAVE_ANON_PUBLIC_AQUI")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
