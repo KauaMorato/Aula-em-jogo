@@ -1,43 +1,17 @@
 import os
-import sqlite3
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request
 from flask_cors import CORS
+from supabase import create_client, Client
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-FRONTEND_DIR = os.path.join(BASE_DIR, "..", "Front-End")
-FRONTEND_DIR = os.path.abspath(FRONTEND_DIR)
-DB_NAME = os.path.join(BASE_DIR, "jogo_python.db")
-
-app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
+app = Flask(__name__)
 CORS(app)
 
+# Configuração Segura via Variáveis de Ambiente
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "SUA_URL_DO_SUPABASE")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "SUA_CHAVE_ANON_PUBLIC_AQUI")
 
-def init_db():
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS usuarios (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            usuario TEXT UNIQUE NOT NULL,
-            senha TEXT NOT NULL,
-            fase INTEGER DEFAULT 1
-        )
-    ''')
-    conn.commit()
-    conn.close()
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-
-init_db()
-
-
-@app.route("/")
-def index():
-    return send_from_directory(FRONTEND_DIR, "index.html")
-
-
-@app.route("/<path:nome_arquivo>")
-def servir_arquivo(nome_arquivo):
-    return send_from_directory(FRONTEND_DIR, nome_arquivo)
 
 # Rota para CADASTRAR novo usuário
 @app.route('/api/cadastrar', methods=['POST'])
@@ -50,14 +24,26 @@ def cadastrar():
         return jsonify({'erro': 'Preencha usuário e senha!'}), 400
 
     try:
-        conn = sqlite3.connect(DB_NAME)
-        cursor = conn.cursor()
-        cursor.execute('INSERT INTO usuarios (usuario, senha, fase) VALUES (?, ?, 1)', (usuario, senha))
-        conn.commit()
-        conn.close()
+        email_ficticio = f"{usuario}@jogo.com"
+        
+        # 1. Cria a conta no Supabase Auth
+        res_auth = supabase.auth.sign_up({
+            "email": email_ficticio,
+            "password": senha
+        })
+
+        # 2. Salva na tabela "Cadastro"
+        supabase.table("Cadastro").insert({
+            "id": res_auth.user.id,
+            "usuario": usuario,
+            "fase": 1
+        }).execute()
+
         return jsonify({'mensagem': 'Cadastrado com sucesso!'}), 201
-    except sqlite3.IntegrityError:
-        return jsonify({'erro': 'Usuário já existe!'}), 400
+
+    except Exception as e:
+        return jsonify({'erro': 'Erro ao cadastrar ou usuário já existe.'}), 400
+
 
 # Rota para FAZER LOGIN
 @app.route('/api/login', methods=['POST'])
@@ -66,19 +52,33 @@ def login():
     usuario = data.get('usuario')
     senha = data.get('senha')
 
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute('SELECT senha, fase FROM usuarios WHERE usuario = ?', (usuario,))
-    row = cursor.fetchone()
-    conn.close()
+    if not usuario or not senha:
+        return jsonify({'erro': 'Preencha usuário e senha!'}), 400
 
-    if row and row[0] == senha:
+    try:
+        email_ficticio = f"{usuario}@jogo.com"
+
+        # 1. Autentica no Supabase Auth
+        res_auth = supabase.auth.sign_in_with_password({
+            "email": email_ficticio,
+            "password": senha
+        })
+
+        # 2. Busca a fase na tabela "Cadastro"
+        res_db = supabase.table("Cadastro").select("fase").eq("id", res_auth.user.id).execute()
+
+        fase = 1
+        if res_db.data:
+            fase = res_db.data[0].get('fase', 1)
+
         return jsonify({
             'mensagem': 'Login com sucesso!',
-            'progresso': {'fase': row[1]}
+            'progresso': {'fase': fase}
         }), 200
-    else:
+
+    except Exception:
         return jsonify({'erro': 'Usuário ou senha incorretos'}), 401
+
 
 # Rota para SALVAR A FASE do jogador
 @app.route('/api/progresso', methods=['POST'])
@@ -90,13 +90,13 @@ def salvar_progresso():
     if not usuario or fase is None:
         return jsonify({'erro': 'Dados incompletos'}), 400
 
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute('UPDATE usuarios SET fase = ? WHERE usuario = ?', (fase, usuario))
-    conn.commit()
-    conn.close()
+    try:
+        supabase.table("Cadastro").update({"fase": fase}).eq("usuario", usuario).execute()
+        return jsonify({'mensagem': 'Progresso salvo!'}), 200
+    except Exception as e:
+        return jsonify({'erro': 'Erro ao salvar no Supabase'}), 500
 
-    return jsonify({'mensagem': 'Progresso salvo!'}), 200
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
