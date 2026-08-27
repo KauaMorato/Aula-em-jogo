@@ -190,6 +190,14 @@ function avancarFase() {
     salvarProgresso(novaFase);
 }
 
+//Botao de voltar fase
+function voltarFase() {
+    if (fase > 1) {
+        const novaFase = fase - 1;
+        salvarProgresso(novaFase);
+    }
+}
+
 function atualizarInterfaceProgresso() {
     document.getElementById("faseAtual").innerText = fase;
     const porcentagem = Math.min((fase - 1) * 10, 100);
@@ -258,6 +266,7 @@ mostrarLogin();
 window.mostrarLogin = mostrarLogin;
 window.entrar = entrar;
 window.cadastrar = cadastrar;
-window.avançarFase = avancarFase;
+window.avancarFase = avancarFase;
+window.voltarFase = voltarFase;
 window.logout = logout;
 window.alternarModo = alternarModo;
