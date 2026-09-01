@@ -211,21 +211,21 @@ let posY = 50;
 document.addEventListener("keydown", function (event) {
     if (document.getElementById("jogo").style.display !== "block") return;
 
+    const tecla = event.key.toLowerCase();
+
+    //ADICIONANDO A MOVIMENTAÇÃO POR WASD E SETAS
     if (
-        event.key === "ArrowUp" ||
-        event.key === "ArrowDown" ||
-        event.key === "ArrowLeft" ||
-        event.key === "ArrowRight"
+        ["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d"].includes(tecla)
     ) {
         event.preventDefault();
     }
 
     const player = document.getElementById("player");
 
-    if (event.key === "ArrowRight" && posX < 760) posX += 10;
-    if (event.key === "ArrowLeft" && posX > 0) posX -= 10;
-    if (event.key === "ArrowUp" && posY > 0) posY -= 10;
-    if (event.key === "ArrowDown" && posY < 410) posY += 10;
+    if ((tecla === "arrowright" || tecla === "d") && posX < 736) posX += 10;
+    if ((tecla === "arrowleft" || tecla === "a") && posX > 0) posX -= 10;
+    if ((tecla === "arrowup" || tecla === "w") && posY > 0) posY -= 10;
+    if ((tecla === "arrowdown" || tecla === "s") && posY < 386) posY += 10;
 
     player.style.left = posX + "px";
     player.style.top = posY + "px";

@@ -225,13 +225,27 @@ main {
     overflow: hidden;
 }
 
+
 #player {
-    width: 64px;
-    height: 64px;
+    width: 64px;               
+    height: 64px;              
     position: absolute;
     left: 50px;
     top: 50px;
+    background-image: url('../assests/pixilart-sprite.png');
+    background-repeat: no-repeat;
+    background-size: cover;
     image-rendering: pixelated;
+    animation: andar 0.8s steps(4) infinite;
+}
+
+@keyframes andar {
+    from {
+        background-position: 0px 0px;
+    }
+    to {
+        background-position: -256px 0px;
+    }
 }
 
 #jogo h2,
