@@ -1,0 +1,25 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Bungee', cursive;
+}
+
+body {
+    background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+    color: #1e1e2f;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    background-color: #440bb4;
+    padding: 1rem 2rem;
+    color: white;
+}
+
+h1 {
+    background-color: #440bb4;
+    color: #ffffff;
+    padding: 0.7rem;
+}
