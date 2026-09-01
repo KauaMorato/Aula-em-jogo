@@ -226,12 +226,12 @@ main {
 }
 
 #player {
-    width: 40px;
-    height: 40px;
-    background-color: yellow;
+    width: 64px;
+    height: 64px;
     position: absolute;
     left: 50px;
     top: 50px;
+    image-rendering: pixelated;
 }
 
 #jogo h2,
