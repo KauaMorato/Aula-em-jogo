@@ -23,3 +23,74 @@ h1 {
     color: #ffffff;
     padding: 0.7rem;
 }
+
+.contact-info li {
+    font-family: system-ui, -apple-system, sans-serif;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.contact-info li span {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.row-footer {
+    background-color: #1e1e2f;
+    color: #ffffff;
+    padding: 50px 20px 20px;
+    margin-top: 40px;
+    border-top: 4px solid #440bb4;
+}
+
+.footer-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 30px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-col h3.footer-logo {
+    color: #8f00ff;
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+}
+
+.footer-col h4 {
+    color: #ffffff;
+    font-size: 1rem;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+}
+
+.footer-bottom {
+    max-width: 1000px;
+    margin: 20px auto 0;
+    text-align: center;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 0.85rem;
+    color: #aaa;
+}
+
+.footer-bottom strong {
+    color: #8f00ff;
+}
+
+.devs-credits {
+    margin-top: 6px;
+}
+
+@media (max-width: 768px) {
+    .row-footer {
+        padding: 35px 20px 20px;
+    }
+
+    .footer-container {
+        grid-template-columns: 1fr;
+        gap: 25px;
+        text-align: center;
+    }
+}
