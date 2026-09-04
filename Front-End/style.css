@@ -232,7 +232,7 @@ main {
     position: absolute;
     left: 50px;
     top: 50px;
-    background-image: url('../assests/pixilart-sprite.png');
+    background-image: url('../assets/pixilart-sprite.png');
     background-repeat: no-repeat;
     background-size: cover;
     image-rendering: pixelated;
