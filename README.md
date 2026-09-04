@@ -4,7 +4,7 @@
 [![Acessar Site](https://img.shields.io/badge/Acessar%20Site-440bb4?style=for-the-badge)](https://kauamorato.github.io/Aula-em-jogo/Front-End/)
 ---
 
-A idéia principal desse projeto surgiu ao longo do período em que estive no terceiro ano do ensino médio cursando Desenvolvimento de Sistemas, ao descobrir que alguns alunos do segundo ano do mesmo curso tem dificuldades com programação em python
+A ideia principal desse projeto surgiu ao longo do período em que estive no terceiro ano do ensino médio cursando Desenvolvimento de Sistemas, ao descobrir que alguns alunos do segundo ano do mesmo curso tem dificuldades com programação em python
 
 Para resolvermos esse problema, me juntei aos meus amigos para criar um site bem simples e dinâmico com um propósito, ensinar pessoas com dificuldades em programação ou que queiram aprender. No princípio queríamos criar um jogo que juntasse a dinâmica de aprendizado junto a de jogatina, sempre separando o intervalo de cada contratempo
 
