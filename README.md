@@ -18,3 +18,37 @@ Inspirações para o projeto: The Farmer Was Replaced (Steam) e coddy.tech (Brow
 - [x] Tela de Login / Cadastro
 - [ ] Exercícios
 - [ ] Arte do Jogo
+
+## Colaboradores 
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="./assets/Colaboradores/Kauã.jpg" width="100px" alt="Foto do Integrante"/><br>
+      <sub>
+        <b>Kauã Morato</b>
+      </sub>
+    </td>
+
+  <td align="center">
+      <img src="./assets/Colaboradores/Agnaldo.jpg" width="100px" alt="Foto do Integrante"/><br>
+      <sub>
+        <b>Agnaldo Angelim</b>
+      </sub>
+    </td>
+
+  <td align="center">
+      <img src="./assets/Colaboradores/Matheus.jpg" width="100px" alt="Foto do Integrante"/><br>
+      <sub>
+        <b>Matheus Sampaio</b>
+      </sub>
+    </td>
+
+  <td align="center">
+      <img src="./assets/Colaboradores/Lucas.jpg" width="100px" alt="Foto do Integrante"/><br>
+      <sub>
+        <b>Lucas Gonçalves</b>
+      </sub>
+    </td>
+  </tr>
+</table>
