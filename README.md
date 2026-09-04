@@ -1,6 +1,7 @@
 # Projeto de TCC
 ### Neste repositório irá conter todos os conteúdos do meu projeto do TCC para o curso técnico de Desenvolvimento de Sistemas
-
+![Total Commits](https://img.shields.io/github/commit-activity/t/KauaMorato/Aula-em-jogo?style=for-the-badge&color=brightgreen)
+[![Acessar Site](https://img.shields.io/badge/Acessar%20Site-440bb4?style=for-the-badge)](https://kauamorato.github.io/Aula-em-jogo/Front-End/)
 ---
 
 A idéia principal desse projeto surgiu ao longo do período em que estive no terceiro ano do ensino médio cursando Desenvolvimento de Sistemas, ao descobrir que alguns alunos do segundo ano do mesmo curso tem dificuldades com programação em python
