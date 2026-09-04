@@ -9,3 +9,12 @@ A idéia principal desse projeto surgiu ao longo do período em que estive no te
 Para resolvermos esse problema, me juntei aos meus amigos para criar um site bem simples e dinâmico com um propósito, ensinar pessoas com dificuldades em programação ou que queiram aprender. No princípio queríamos criar um jogo que juntasse a dinâmica de aprendizado junto a de jogatina, sempre separando o intervalo de cada contratempo
 
 Inspirações para o projeto: The Farmer Was Replaced (Steam) e coddy.tech (Browser)
+
+---
+
+### Projeto em andamento
+
+- [x] Criação do Site
+- [x] Tela de Login / Cadastro
+- [ ] Exercícios
+- [ ] Arte do Jogo
