@@ -17,13 +17,11 @@ app = Flask(__name__)
 CORS(app)
 
 # Configuração segura via variáveis de ambiente
-SUPABASE_URL = (os.environ.get("SUPABASE_URL") or "").strip().rstrip("/")
-SUPABASE_KEY = (os.environ.get("SUPABASE_KEY") or "").strip()
+DEFAULT_SUPABASE_URL = "https://blwrjkpzimpxbubrgcna.supabase.co"
+DEFAULT_SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsd3Jqa3B6aW1weGJ1YnJnY25hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMjc0MTEsImV4cCI6MjEwMTcwMzQxMX0.MNPXNuvw06TG2jRZKKuKb61_fdBEwVjAIcspeQ425bw"
 
-if not SUPABASE_URL or not SUPABASE_KEY:
-    raise RuntimeError(
-        "SUPABASE_URL e SUPABASE_KEY não foram encontrados. Crie um arquivo .env na pasta do projeto com esses valores."
-    )
+SUPABASE_URL = (os.environ.get("SUPABASE_URL") or DEFAULT_SUPABASE_URL).strip().rstrip("/")
+SUPABASE_KEY = (os.environ.get("SUPABASE_KEY") or DEFAULT_SUPABASE_KEY).strip()
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
