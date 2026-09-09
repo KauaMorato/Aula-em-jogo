@@ -17,7 +17,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Configuração segura via variáveis de ambiente
-DEFAULT_SUPABASE_URL = "https://blwrjkpzimpxbubrgcna.supabase.co"
+DEFAULT_SUPABASE_URL = "https://blwrjkpzimpxbubrgcna.supabase.co/rest/v1/"
 DEFAULT_SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsd3Jqa3B6aW1weGJ1YnJnY25hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMjc0MTEsImV4cCI6MjEwMTcwMzQxMX0.MNPXNuvw06TG2jRZKKuKb61_fdBEwVjAIcspeQ425bw"
 
 SUPABASE_URL = (os.environ.get("SUPABASE_URL") or DEFAULT_SUPABASE_URL).strip().rstrip("/")

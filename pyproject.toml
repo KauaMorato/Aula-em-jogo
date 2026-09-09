@@ -7,5 +7,3 @@ requires-python = ">=3.12"
 dependencies = [
     "flask",
 ]
-[tool.vercel]
-entrypoint = "Back-End/app.py"

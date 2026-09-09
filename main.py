@@ -11,7 +11,3 @@ sys.modules["backend_app"] = backend_app
 spec.loader.exec_module(backend_app)
 
 app = backend_app.app
-
-if __name__ == "__main__":
-    # start Flask dev server when executed directly
-    app.run(debug=True)
