@@ -37,6 +37,9 @@ DEFAULT_SUPABASE_URL = "https://blwrjkpzimpxbubrgcna.supabase.co/rest/v1/"
 DEFAULT_SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsd3Jqa3B6aW1weGJ1YnJnY25hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMjc0MTEsImV4cCI6MjEwMTcwMzQxMX0.MNPXNuvw06TG2jRZKKuKb61_fdBEwVjAIcspeQ425bw"
 
 SUPABASE_URL = (os.environ.get("SUPABASE_URL") or DEFAULT_SUPABASE_URL).strip().rstrip("/")
+# Normalize URL: supabase create_client expects the project base URL (no /rest/v1 suffix)
+if "/rest" in SUPABASE_URL:
+    SUPABASE_URL = SUPABASE_URL.split("/rest")[0]
 SUPABASE_KEY = (os.environ.get("SUPABASE_KEY") or DEFAULT_SUPABASE_KEY).strip()
 
 # Lazy initialization for supabase client so module import doesn't fail
@@ -56,6 +59,26 @@ def get_supabase() -> Any | None:
     except Exception as e:
         print(f"Erro ao criar supabase client: {e}")
         return None
+
+
+def _extract_user_id(res_auth: Any) -> str | None:
+    """Tenta extrair o id do usuário da resposta do Supabase (varia por versão)."""
+    try:
+        # objeto com atributos
+        user = getattr(res_auth, 'user', None)
+        if user:
+            return getattr(user, 'id', None)
+    except Exception:
+        pass
+    try:
+        # dicionário-like
+        if isinstance(res_auth, dict):
+            u = res_auth.get('user') or res_auth.get('data')
+            if isinstance(u, dict):
+                return u.get('id')
+    except Exception:
+        pass
+    return None
 
 
 def resolver_tabela_cadastro():
@@ -125,9 +148,17 @@ def cadastrar():
             "password": senha
         })
 
+        # debug: log mínimo da resposta auth (não revela chaves)
+        try:
+            print("sign_up response:", {k: v for k, v in (getattr(res_auth, '__dict__', {}) or {}).items() if k != 'token'})
+        except Exception:
+            print("sign_up response (repr):", repr(res_auth))
+
         # 2. Salva na tabela de cadastro
+        user_id = _extract_user_id(res_auth)
+        print(f"extracted user_id for insert: {user_id}")
         sup.table(tabela).insert({
-            "id": getattr(res_auth.user, 'id', None),
+            "id": user_id,
             "usuario": usuario,
             "fase": 1
         }).execute()
@@ -164,7 +195,13 @@ def login():
             "password": senha
         })
 
-        fase = buscar_fase_por_usuario(usuario, getattr(res_auth.user, 'id', None))
+        # debug: log mínimo da resposta auth
+        try:
+            print("sign_in response:", {k: v for k, v in (getattr(res_auth, '__dict__', {}) or {}).items() if k != 'token'})
+        except Exception:
+            print("sign_in response (repr):", repr(res_auth))
+
+        fase = buscar_fase_por_usuario(usuario, _extract_user_id(res_auth))
 
         return jsonify({
             'mensagem': 'Login com sucesso!',
