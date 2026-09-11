@@ -1,9 +1,0 @@
-[project]
-name = "projeto-tcc-ohc3"
-version = "0.1.0"
-description = "Descrição do seu projeto"
-readme = "README.md"
-requires-python = ">=3.12"
-dependencies = [
-    "flask",
-]

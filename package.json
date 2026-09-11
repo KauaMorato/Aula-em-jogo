@@ -1,0 +1,27 @@
+{
+  "name": "projeto-tcc",
+  "version": "1.0.0",
+  "description": "![Total Commits](https://img.shields.io/github/commit-activity/t/KauaMorato/Aula-em-jogo?style=for-the-badge&color=brightgreen)\r [![Acessar Site](https://img.shields.io/badge/Acessar%20Site-440bb4?style=for-the-badge)](https://kauamorato.github.io/Aula-em-jogo/Front-End/)\r ---",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KauaMorato/Aula-em-jogo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/KauaMorato/Aula-em-jogo/issues"
+  },
+  "homepage": "https://github.com/KauaMorato/Aula-em-jogo#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.116.0",
+    "vite": "^8.3.0"
+  }
+}

@@ -1,32 +1,14 @@
-// 1. Importações do Firebase SDK
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+// 1. Importação do cliente Supabase
+import { supabase } from '../src/lib/supabase.js';
 
-// 2. Chaves do seu projeto Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyCCeX7RZ84J12IFKN6N9p9HsVuT_VQ-jco",
-  authDomain: "aula-em-jogo-5b614.firebaseapp.com",
-  projectId: "aula-em-jogo-5b614",
-  storageBucket: "aula-em-jogo-5b614.firebasestorage.app",
-  messagingSenderId: "906330655287",
-  appId: "1:906330655287:web:04edecec117ce237450db2"
-};
-
-// 3. Inicializando Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-const menuBtn = document.getElementById("menuBtn");
-const navMenu = document.getElementById("navMenu");
-const tabLogin = document.getElementById("tabLogin");
-const tabCadastro = document.getElementById("tabCadastro");
-const submitButton = document.getElementById("authSubmitBtn");
-
+// Variáveis de estado global do jogo
 let usuarioAtual = null;
 let fase = 1;
 let authModo = "login";
+
+// Posição do personagem
+let posX = 50;
+let posY = 50;
 
 function atualizarEstadoDocumentacao() {
     const secaoDocumentacao = document.getElementById("documentacao");
@@ -52,6 +34,9 @@ function ajustarMensagem(texto, cor = "red") {
 function alternarModo(modo) {
     authModo = modo;
 
+    const tabLogin = document.getElementById("tabLogin");
+    const tabCadastro = document.getElementById("tabCadastro");
+    const submitButton = document.getElementById("authSubmitBtn");
     const title = document.getElementById("authTitle");
     const subtitle = document.getElementById("authSubtitle");
 
@@ -73,39 +58,56 @@ function alternarModo(modo) {
 }
 
 function mostrarLogin(mensagem = "") {
-    document.getElementById("login").style.display = "flex";
-    document.getElementById("jogar").style.display = "none";
-    document.getElementById("jogo").style.display = "none";
+    const elLogin = document.getElementById("login");
+    const elJogar = document.getElementById("jogar");
+    const elJogo = document.getElementById("jogo");
+
+    if (elLogin) elLogin.style.display = "flex";
+    if (elJogar) elJogar.style.display = "none";
+    if (elJogo) elJogo.style.display = "none";
+
     ajustarMensagem(mensagem);
     alternarModo("login");
-    document.getElementById("usuario").focus();
+
+    const elUsuario = document.getElementById("usuario");
+    if (elUsuario) elUsuario.focus();
 }
 
-// LOGIN NO FIREBASE
+// LOGIN NO SUPABASE
 async function entrar() {
-    const usuario = document.getElementById("usuario").value.trim();
-    const senha = document.getElementById("senha").value;
+    const elUsuario = document.getElementById("usuario");
+    const elSenha = document.getElementById("senha");
+
+    const usuario = elUsuario ? elUsuario.value.trim() : "";
+    const senha = elSenha ? elSenha.value : "";
 
     if (!usuario || !senha) {
         ajustarMensagem("Preencha usuário e senha!");
         return;
     }
 
-    const emailFicticio = `${usuario}@jogo.com`;
+    const usuarioSanitizado = usuario.toLowerCase().replace(/\s+/g, '');
+    const emailFicticio = `${usuarioSanitizado}@jogo.com`;
 
     try {
-        // Autentica o usuário no Firebase Auth
-        const credencial = await signInWithEmailAndPassword(auth, emailFicticio, senha);
-        const user = credencial.user;
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+            email: emailFicticio,
+            password: senha
+        });
 
-        usuarioAtual = user.uid;
+        if (authError) throw authError;
 
-        // Busca o progresso da Fase no Firestore
-        const docRef = doc(db, "Cadastro", user.uid);
-        const docSnap = await getDoc(docRef);
+        const user = authData.user;
+        usuarioAtual = user.id;
 
-        if (docSnap.exists()) {
-            fase = docSnap.data().Fase || 1;
+        const { data: docSnap } = await supabase
+            .from("Cadastro")
+            .select("Fase")
+            .eq("id", user.id)
+            .maybeSingle();
+
+        if (docSnap && docSnap.Fase) {
+            fase = docSnap.Fase;
         } else {
             fase = 1;
         }
@@ -119,56 +121,76 @@ async function entrar() {
         atualizarEstadoDocumentacao();
         ajustarMensagem("Login realizado com sucesso!", "green");
     } catch (erro) {
-        ajustarMensagem("Usuário ou senha incorretos.");
+        console.error("Erro no login:", erro);
+        ajustarMensagem(erro.message || "Usuário ou senha incorretos.");
     }
 }
 
-// CADASTRO NO FIREBASE
+// CADASTRO NO SUPABASE
 async function cadastrar() {
-    const usuario = document.getElementById("usuario").value.trim();
-    const senha = document.getElementById("senha").value;
+    const elUsuario = document.getElementById("usuario");
+    const elSenha = document.getElementById("senha");
+
+    const usuario = elUsuario ? elUsuario.value.trim() : "";
+    const senha = elSenha ? elSenha.value : "";
 
     if (!usuario || !senha) {
         ajustarMensagem("Preencha usuário e senha!");
         return;
     }
 
-    const emailFicticio = `${usuario}@jogo.com`;
+    const usuarioSanitizado = usuario.toLowerCase().replace(/\s+/g, '');
+    const emailFicticio = `${usuarioSanitizado}@jogo.com`;
 
     try {
-        // Cria usuário no Firebase Auth
-        const credencial = await createUserWithEmailAndPassword(auth, emailFicticio, senha);
-        const user = credencial.user;
-        usuarioAtual = user.uid;
-
-        // Cria o registro da fase no Firestore
-        await setDoc(doc(db, "Cadastro", user.uid), {
-            Nome: usuario,
-            Fase: 1
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+            email: emailFicticio,
+            password: senha
         });
+
+        if (authError) throw authError;
+
+        const user = authData.user;
+        usuarioAtual = user.id;
+
+        const { error: dbError } = await supabase
+            .from("Cadastro")
+            .upsert({
+                id: user.id,
+                Nome: usuario,
+                Fase: 1
+            });
+
+        if (dbError) throw dbError;
 
         ajustarMensagem("Cadastrado com sucesso! Clique em Entrar.", "green");
         alternarModo("login");
         atualizarEstadoDocumentacao();
     } catch (erro) {
-        if (erro.code === 'auth/weak-password') {
+        console.error("Erro no cadastro:", erro);
+        if (erro.message && erro.message.includes("Password should be at least")) {
             ajustarMensagem("A senha deve ter no mínimo 6 caracteres!");
-        } else if (erro.code === 'auth/email-already-in-use') {
+        } else if (erro.message && erro.message.includes("User already registered")) {
             ajustarMensagem("Este usuário já está cadastrado!");
         } else {
-            ajustarMensagem("Erro ao cadastrar.");
+            ajustarMensagem(erro.message || "Erro ao cadastrar.");
         }
     }
 }
 
-// SALVAR PROGRESSO NO FIRESTORE
+// SALVAR PROGRESSO
 async function salvarProgresso(novaFase) {
     if (!usuarioAtual) return;
 
     try {
-        await setDoc(doc(db, "Cadastro", usuarioAtual), {
-            Fase: novaFase
-        }, { merge: true });
+        const { error } = await supabase
+            .from("Cadastro")
+            .upsert({
+                id: usuarioAtual,
+                Fase: novaFase
+            }, { onConflict: "id" });
+
+        if (error) throw error;
 
         fase = novaFase;
         atualizarInterfaceProgresso();
@@ -178,7 +200,7 @@ async function salvarProgresso(novaFase) {
 }
 
 async function logout() {
-    await signOut(auth);
+    await supabase.auth.signOut();
     usuarioAtual = null;
     fase = 1;
     mostrarLogin("");
@@ -190,7 +212,6 @@ function avancarFase() {
     salvarProgresso(novaFase);
 }
 
-//Botao de voltar fase
 function voltarFase() {
     if (fase > 1) {
         const novaFase = fase - 1;
@@ -199,28 +220,29 @@ function voltarFase() {
 }
 
 function atualizarInterfaceProgresso() {
-    document.getElementById("faseAtual").innerText = fase;
-    const porcentagem = Math.min((fase - 1) * 10, 100);
-    document.getElementById("barraProgresso").style.width = `${porcentagem}%`;
+    const elFase = document.getElementById("faseAtual");
+    const elBarra = document.getElementById("barraProgresso");
+
+    if (elFase) elFase.innerText = fase;
+    if (elBarra) {
+        const porcentagem = Math.min((fase - 1) * 10, 100);
+        elBarra.style.width = `${porcentagem}%`;
+    }
 }
 
-// MOVIMENTAÇÃO DO PERSONAGEM
-let posX = 50;
-let posY = 50;
-
+// CONTROLE DE TECLADO E MOVIMENTAÇÃO
 document.addEventListener("keydown", function (event) {
-    if (document.getElementById("jogo").style.display !== "block") return;
+    const elJogo = document.getElementById("jogo");
+    if (!elJogo || elJogo.style.display !== "block") return;
 
     const tecla = event.key.toLowerCase();
 
-    //ADICIONANDO A MOVIMENTAÇÃO POR WASD E SETAS
-    if (
-        ["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d"].includes(tecla)
-    ) {
+    if (["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d"].includes(tecla)) {
         event.preventDefault();
     }
 
     const player = document.getElementById("player");
+    if (!player) return;
 
     if ((tecla === "arrowright" || tecla === "d") && posX < 736) posX += 10;
     if ((tecla === "arrowleft" || tecla === "a") && posX > 0) posX -= 10;
@@ -231,38 +253,48 @@ document.addEventListener("keydown", function (event) {
     player.style.top = posY + "px";
 });
 
-if (menuBtn && navMenu) {
-    menuBtn.addEventListener("click", () => {
-        navMenu.classList.toggle("active");
-    });
+// INICIALIZAÇÃO E EVENTOS DE CLIQUE
+document.addEventListener("DOMContentLoaded", () => {
+    const menuBtn = document.getElementById("menuBtn");
+    const navMenu = document.getElementById("navMenu");
+    const tabLogin = document.getElementById("tabLogin");
+    const tabCadastro = document.getElementById("tabCadastro");
+    const submitButton = document.getElementById("authSubmitBtn");
 
-    document.querySelectorAll(".nav-menu a").forEach((link) => {
-        link.addEventListener("click", () => navMenu.classList.remove("active"));
-    });
-}
+    if (menuBtn && navMenu) {
+        menuBtn.addEventListener("click", () => {
+            navMenu.classList.toggle("active");
+        });
 
-if (tabLogin) {
-    tabLogin.addEventListener("click", () => alternarModo("login"));
-}
+        document.querySelectorAll(".nav-menu a").forEach((link) => {
+            link.addEventListener("click", () => navMenu.classList.remove("active"));
+        });
+    }
 
-if (tabCadastro) {
-    tabCadastro.addEventListener("click", () => alternarModo("cadastro"));
-}
+    if (tabLogin) {
+        tabLogin.addEventListener("click", () => alternarModo("login"));
+    }
 
-if (submitButton) {
-    submitButton.addEventListener("click", () => {
-        if (authModo === "login") {
-            entrar();
-        } else {
-            cadastrar();
-        }
-    });
-}
+    if (tabCadastro) {
+        tabCadastro.addEventListener("click", () => alternarModo("cadastro"));
+    }
 
-atualizarEstadoDocumentacao();
-mostrarLogin();
+    if (submitButton) {
+        submitButton.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (authModo === "login") {
+                entrar();
+            } else {
+                cadastrar();
+            }
+        });
+    }
 
-// EXPORTAÇÃO GLOBAL
+    atualizarEstadoDocumentacao();
+    mostrarLogin();
+});
+
+// EXPORTAÇÃO GLOBAL PARA EVENTOS ONCLICK DO HTML
 window.mostrarLogin = mostrarLogin;
 window.entrar = entrar;
 window.cadastrar = cadastrar;
