@@ -53,4 +53,4 @@ Inspirações para o projeto: The Farmer Was Replaced (Steam) e coddy.tech (Brow
   </tr>
 </table>
 
-.
+
