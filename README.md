@@ -15,7 +15,7 @@ Inspirações para o projeto: The Farmer Was Replaced (Steam) e coddy.tech (Brow
 ### Projeto em andamento
 
 - [x] Criação do Site
-- [x] Tela de Login / Cadastro
+- [ ] Tela de Login / Cadastro
 - [ ] Exercícios
 - [ ] Arte do Jogo
 
