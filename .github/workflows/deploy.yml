@@ -2,7 +2,7 @@ name: Deploy Vite Site to GitHub Pages
 
 on:
   push:
-    branches: ["main"] # Mude para "master" se a sua branch principal for master
+    branches: ["main"] # Altere para "master" se a sua branch principal for master
 
 permissions:
   contents: read
@@ -31,6 +31,9 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      - name: Fix permissions
+        run: chmod +x node_modules/.bin/*
 
       - name: Build
         env:
