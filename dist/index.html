@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula em Jogo</title>
+
+    <link rel="icon" type="image/png" href="./assets/image-removebg-preview-D7aIwE_U.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+  <script type="module" crossorigin src="./assets/index-ga8XhfJU.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DfwVC_AK.css">
+</head>
+<body>
+    <header>
+        <div class="logo">Aula em Jogo</div>
+
+        <button class="menu-btn" id="menuBtn" aria-label="Abrir menu">
+            &#9776;
+        </button>
+
+        <nav class="nav-menu" id="navMenu">
+            <ul>
+                <li><a href="#jogar">Jogar</a></li>
+                <li class="nav-doc-item" style="display: none;"><a href="#documentacao">Documentação</a></li>
+                <li><a href="#sobre">Sobre</a></li>
+                <li><a href="#creditos">Créditos</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="jogar" class="secao hero-section" style="display: none;">
+            <h1>Bem-vindo ao jogo</h1>
+            <p>Uma maneira simples e eficaz de aprender programação</p>
+            <button class="btn-jogar" id="btnIniciarJogo" type="button" onclick="mostrarLogin()">
+                Iniciar o Jogo
+            </button>
+        </section>
+
+        <section id="login" class="secao auth-section" style="display: flex;">
+            <div class="auth-card">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="tabLogin" type="button">Entrar</button>
+                    <button class="auth-tab" id="tabCadastro" type="button">Cadastrar</button>
+                </div>
+
+                <h2 id="authTitle">Entrar na sua conta</h2>
+                <p id="authSubtitle">Acesse seu progresso e continue a sua jornada.</p>
+
+                <div class="auth-form">
+                    <input type="text" id="usuario" placeholder="Digite seu usuário">
+                    <input type="password" id="senha" placeholder="Digite sua senha">
+                    <button class="auth-submit" id="authSubmitBtn" type="button">Entrar</button>
+                    <p id="mensagem-auth" class="mensagem-auth"></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="jogo" class="secao" style="display: none;">
+            <h2>Tela do Jogo</h2>
+
+            <p id="bemVindo"></p>
+
+            <h3>Sua Fase: <span id="faseAtual"></span></h3>
+
+            <div class="barra">
+                <div class="progresso" id="barraProgresso"></div>
+            </div>
+
+            <div id="gameArea">
+                <div id="player" class="player-sprite"></div>
+            </div>
+
+            <button class="btn-jogar" style="background-color: #f39c12;" onclick="voltarFase()">Voltar Fase</button>
+            <button class="btn-jogar" onclick="avancarFase()">Avançar Fase</button>
+            <button class="btn-jogar" style="background-color: #c0392b;" onclick="logout()">Sair</button>
+        </section>
+
+        <section id="documentacao" class="secao" style="display: none;">
+            <div class="documentacao-conteudo">
+                <div>
+                    <h1>Documentações dos códigos</h1>
+                    <p>Materiais essenciais para a sua jornada.</p>
+                </div>
+                <br/>
+                <a href="documentos.html">Clique aqui</a>
+            </div>
+        </section>
+
+        <section id="sobre" class="secao">
+            <h1>Sobre o projeto</h1>
+            <p>Descrição</p>
+        </section>
+    </main>
+
+    <footer class="row-footer" id="creditos">
+        <div class="footer-container">
+            <div class="footer-col brand-col">
+                <h3 class="footer-logo">Aula em jogo</h3>
+                <p class="brand-description">Ajudando pessoas com dificuldades de aprendizagem em programação</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Navegação</h4>
+                <ul class="footer-links">
+                    <li><a href="#login">Entrar</a></li>
+                    <li class="footer-doc-item" style="display: none;"><a href="#documentacao">Documentação</a></li>
+                    <li><a href="#sobre">Sobre o Projeto</a></li>
+                    <li><a href="#creditos">Créditos</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Contato</h4>
+                <ul class="contact-info">
+                    <li><span>Email:</span> kvnmcomercial@gmail.com</li>
+                    <li><span>Suporte:</span> matheusampaio098@gmail.com</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="footer-content">
+                <p>&copy; 2026 <strong>Aula em jogo</strong>. Todos os direitos reservados.</p>
+                <p class="devs-credits">Desenvolvido por <strong>Kauã Morato</strong>, <strong>Agnaldo Angelim</strong>, <strong>Matheus Sampaio</strong>, <strong>Lucas Gonçalves</strong>.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</body>
+</html>

@@ -1,8 +1,9 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/Aula-em-jogo/',
-  root: './Front-End',
+  base: './',
+  root: 'Front-End',
+  envDir: '../', // <--- Adicione esta linha
   build: {
     outDir: '../dist',
     emptyOutDir: true
