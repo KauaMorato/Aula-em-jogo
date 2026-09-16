@@ -2,7 +2,7 @@ name: Deploy Vite Site to GitHub Pages
 
 on:
   push:
-    branches: ["main"] # Altere para "master" se sua branch for master
+    branches: ["main"] # Mude para "master" se a sua branch principal for master
 
 permissions:
   contents: read
@@ -41,7 +41,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist' # Se a pasta dist for gerada dentro de Front-End, mude para './Front-End/dist'
+          path: './dist'
 
       - name: Deploy to GitHub Pages
         id: deployment
