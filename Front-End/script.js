@@ -112,10 +112,15 @@ async function entrar() {
             fase = 1;
         }
 
-        document.getElementById("login").style.display = "none";
-        document.getElementById("jogar").style.display = "none";
-        document.getElementById("jogo").style.display = "block";
-        document.getElementById("bemVindo").textContent = "Bem-vindo, " + usuario + "!";
+        const elLogin = document.getElementById("login");
+        const elJogar = document.getElementById("jogar");
+        const elJogo = document.getElementById("jogo");
+        const elBemVindo = document.getElementById("bemVindo");
+
+        if (elLogin) elLogin.style.display = "none";
+        if (elJogar) elJogar.style.display = "none";
+        if (elJogo) elJogo.style.display = "block";
+        if (elBemVindo) elBemVindo.textContent = "Bem-vindo, " + usuario + "!";
 
         atualizarInterfaceProgresso();
         atualizarEstadoDocumentacao();
@@ -260,6 +265,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const tabLogin = document.getElementById("tabLogin");
     const tabCadastro = document.getElementById("tabCadastro");
     const submitButton = document.getElementById("authSubmitBtn");
+    const btnAvancar = document.getElementById("btnAvancar");
+    const btnVoltar = document.getElementById("btnVoltar");
+    const btnLogout = document.getElementById("btnLogout");
 
     if (menuBtn && navMenu) {
         menuBtn.addEventListener("click", () => {
@@ -272,11 +280,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (tabLogin) {
-        tabLogin.addEventListener("click", () => alternarModo("login"));
+        tabLogin.addEventListener("click", (e) => {
+            e.preventDefault();
+            alternarModo("login");
+        });
     }
 
     if (tabCadastro) {
-        tabCadastro.addEventListener("click", () => alternarModo("cadastro"));
+        tabCadastro.addEventListener("click", (e) => {
+            e.preventDefault();
+            alternarModo("cadastro");
+        });
     }
 
     if (submitButton) {
@@ -290,15 +304,36 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    if (btnAvancar) {
+        btnAvancar.addEventListener("click", (e) => {
+            e.preventDefault();
+            avancarFase();
+        });
+    }
+
+    if (btnVoltar) {
+        btnVoltar.addEventListener("click", (e) => {
+            e.preventDefault();
+            voltarFase();
+        });
+    }
+
+    if (btnLogout) {
+        btnLogout.addEventListener("click", (e) => {
+            e.preventDefault();
+            logout();
+        });
+    }
+
     atualizarEstadoDocumentacao();
     mostrarLogin();
 });
 
 // EXPORTAÇÃO GLOBAL PARA EVENTOS ONCLICK DO HTML
-window.mostrarLogin = mostrarLogin;
-window.entrar = entrar;
-window.cadastrar = cadastrar;
-window.avancarFase = avancarFase;
-window.voltarFase = voltarFase;
-window.logout = logout;
-window.alternarModo = alternarModo;
+window.mostrarLogin = (msg) => mostrarLogin(msg);
+window.entrar = () => entrar();
+window.cadastrar = () => cadastrar();
+window.avancarFase = () => avancarFase();
+window.voltarFase = () => voltarFase();
+window.logout = () => logout();
+window.alternarModo = (modo) => alternarModo(modo);
