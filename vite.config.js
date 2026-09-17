@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
-  base: './',
+  base: '/Aula-em-jogo/',
   root: 'Front-End',
   envDir: '../',
   build: {
