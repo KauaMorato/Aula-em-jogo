@@ -10,6 +10,9 @@ Para resolvermos esse problema, me juntei aos meus amigos para criar um site bem
 
 Inspirações para o projeto: The Farmer Was Replaced (Steam) e coddy.tech (Browser)
 
+> [!NOTE]
+> Crie sua conta e comece a aprender programação do zero ao intermediário
+
 ---
 
 ### Projeto em andamento
