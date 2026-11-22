@@ -31,6 +31,56 @@ function ajustarMensagem(texto, cor = "red") {
     }
 }
 
+function definirCarregamento(carregando) {
+    const submitButton = document.getElementById("authSubmitBtn");
+    if (!submitButton) return;
+
+    submitButton.disabled = carregando;
+    submitButton.textContent = carregando
+        ? "Aguarde..."
+        : (authModo === "login" ? "Entrar" : "Cadastrar");
+}
+
+function obterEmailDoUsuario(usuario) {
+    const usuarioSanitizado = usuario
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9_-]/g, "");
+
+    if (!usuarioSanitizado) {
+        throw new Error("O usuário deve conter pelo menos uma letra ou número.");
+    }
+
+    return `${usuarioSanitizado}@jogo.com`;
+}
+
+function obterMensagemDeErroAuth(erro, acao) {
+    const codigo = erro?.code || "";
+    const mensagem = erro?.message || "";
+
+    if (codigo === "email_not_confirmed" || mensagem.toLowerCase().includes("email not confirmed")) {
+        return "Esta conta ainda não foi confirmada. Confirme-a no painel do Supabase em Authentication > Users.";
+    }
+    if (codigo === "invalid_credentials" || mensagem.toLowerCase().includes("invalid login credentials")) {
+        return "Usuário ou senha incorretos.";
+    }
+    if (codigo === "user_already_exists" || mensagem.includes("User already registered")) {
+        return "Este usuário já está cadastrado!";
+    }
+    if (codigo === "weak_password" || mensagem.includes("Password should be at least")) {
+        return "A senha deve ter no mínimo 6 caracteres!";
+    }
+    if (codigo === "over_email_send_rate_limit") {
+        return "Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.";
+    }
+    if (mensagem.toLowerCase().includes("failed to fetch") || mensagem.toLowerCase().includes("network")) {
+        return "Não foi possível conectar ao Supabase. Verifique sua conexão e as configurações do projeto.";
+    }
+
+    return mensagem || (acao === "cadastro" ? "Erro ao cadastrar." : "Erro ao entrar.");
+}
+
 function alternarModo(modo) {
     authModo = modo;
 
@@ -86,25 +136,30 @@ async function entrar() {
         return;
     }
 
-    const usuarioSanitizado = usuario.toLowerCase().replace(/\s+/g, '');
-    const emailFicticio = `${usuarioSanitizado}@jogo.com`;
-
     try {
+        const emailFicticio = obterEmailDoUsuario(usuario);
+        definirCarregamento(true);
+
         const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
             email: emailFicticio,
             password: senha
         });
 
         if (authError) throw authError;
+        if (!authData?.session || !authData.user) {
+            throw new Error("O login não criou uma sessão válida.");
+        }
 
         const user = authData.user;
         usuarioAtual = user.id;
 
-        const { data: docSnap } = await supabase
+        const { data: docSnap, error: docError } = await supabase
             .from("Cadastro")
             .select("Fase")
             .eq("id", user.id)
             .maybeSingle();
+
+        if (docError) throw docError;
 
         if (docSnap && docSnap.Fase) {
             fase = docSnap.Fase;
@@ -127,7 +182,9 @@ async function entrar() {
         ajustarMensagem("Login realizado com sucesso!", "green");
     } catch (erro) {
         console.error("Erro no login:", erro);
-        ajustarMensagem(erro.message || "Usuário ou senha incorretos.");
+        ajustarMensagem(obterMensagemDeErroAuth(erro, "login"));
+    } finally {
+        definirCarregamento(false);
     }
 }
 
@@ -144,10 +201,10 @@ async function cadastrar() {
         return;
     }
 
-    const usuarioSanitizado = usuario.toLowerCase().replace(/\s+/g, '');
-    const emailFicticio = `${usuarioSanitizado}@jogo.com`;
-
     try {
+        const emailFicticio = obterEmailDoUsuario(usuario);
+        definirCarregamento(true);
+
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email: emailFicticio,
             password: senha
@@ -156,6 +213,19 @@ async function cadastrar() {
         if (authError) throw authError;
 
         const user = authData.user;
+        if (!user) {
+            throw new Error("O cadastro não criou o usuário no Supabase.");
+        }
+
+        if (!authData.session) {
+            await supabase.auth.signOut();
+            ajustarMensagem(
+                "Cadastro criado, mas a confirmação de e-mail está ativa. No Supabase, desative-a em Authentication > Providers > Email ou confirme o usuário no painel.",
+                "red"
+            );
+            return;
+        }
+
         usuarioAtual = user.id;
 
         const { error: dbError } = await supabase
@@ -173,13 +243,9 @@ async function cadastrar() {
         atualizarEstadoDocumentacao();
     } catch (erro) {
         console.error("Erro no cadastro:", erro);
-        if (erro.message && erro.message.includes("Password should be at least")) {
-            ajustarMensagem("A senha deve ter no mínimo 6 caracteres!");
-        } else if (erro.message && erro.message.includes("User already registered")) {
-            ajustarMensagem("Este usuário já está cadastrado!");
-        } else {
-            ajustarMensagem(erro.message || "Erro ao cadastrar.");
-        }
+        ajustarMensagem(obterMensagemDeErroAuth(erro, "cadastro"));
+    } finally {
+        definirCarregamento(false);
     }
 }
 
@@ -210,6 +276,42 @@ async function logout() {
     fase = 1;
     mostrarLogin("");
     atualizarEstadoDocumentacao();
+}
+
+async function restaurarSessao() {
+    try {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) throw error;
+
+        const session = data?.session;
+        if (!session?.user) {
+            mostrarLogin("");
+            return;
+        }
+
+        usuarioAtual = session.user.id;
+
+        const { data: docSnap, error: docError } = await supabase
+            .from("Cadastro")
+            .select("Fase")
+            .eq("id", usuarioAtual)
+            .maybeSingle();
+
+        if (docError) throw docError;
+        fase = docSnap?.Fase || 1;
+
+        const elLogin = document.getElementById("login");
+        const elJogo = document.getElementById("jogo");
+        if (elLogin) elLogin.style.display = "none";
+        if (elJogo) elJogo.style.display = "block";
+
+        atualizarInterfaceProgresso();
+        atualizarEstadoDocumentacao();
+    } catch (erro) {
+        console.error("Erro ao restaurar sessão:", erro);
+        await supabase.auth.signOut();
+        mostrarLogin(obterMensagemDeErroAuth(erro, "login"));
+    }
 }
 
 function avancarFase() {
@@ -326,7 +428,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     atualizarEstadoDocumentacao();
-    mostrarLogin();
+    restaurarSessao();
 });
 
 // EXPORTAÇÃO GLOBAL PARA EVENTOS ONCLICK DO HTML
