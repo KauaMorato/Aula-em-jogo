@@ -107,6 +107,12 @@ main {
     transform: translateY(-2px);
 }
 
+.btn-jogar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .auth-section {
     display: flex;
     justify-content: center;
@@ -225,10 +231,64 @@ main {
     overflow: hidden;
 }
 
+.btn-mute {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background-color: rgba(30, 30, 47, 0.35);
+    color: rgba(255, 255, 255, 0.78);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 5;
+    transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+    opacity: 0.75;
+}
+
+.btn-mute:hover {
+    background-color: rgba(30, 30, 47, 0.65);
+    color: #ffffff;
+    opacity: 1;
+}
+
+.btn-mute.mutado {
+    background-color: rgba(30, 30, 47, 0.55);
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.ponto-exclamacao {
+    width: 42px;
+    height: 42px;
+    position: absolute;
+    left: 520px;
+    top: 120px;
+    background-color: #ffd000;
+    color: #1e1e2f;
+    border: 3px solid #1e1e2f;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    box-shadow: 0 0 14px rgba(255, 208, 0, 0.8);
+    animation: pulsarExclamacao 1s infinite alternate;
+    z-index: 2;
+}
+
+@keyframes pulsarExclamacao {
+    from { transform: translateY(0px); }
+    to { transform: translateY(-6px); }
+}
 
 #player {
-    width: 64px;               
-    height: 64px;              
+    width: 64px;
+    height: 64px;
     position: absolute;
     left: 50px;
     top: 50px;
@@ -237,6 +297,7 @@ main {
     background-size: cover;
     image-rendering: pixelated;
     animation: andar 0.8s steps(4) infinite;
+    z-index: 3;
 }
 
 @keyframes andar {
@@ -246,6 +307,51 @@ main {
     to {
         background-position: -256px 0px;
     }
+}
+
+.aviso-interagir {
+    position: absolute;
+    left: 50%;
+    top: 16px;
+    transform: translateX(-50%);
+    background: rgba(30, 30, 47, 0.92);
+    color: #ffd000;
+    border: 2px solid #ffd000;
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 0.85rem;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.caixa-interacao {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    background: rgba(30, 30, 47, 0.95);
+    color: #ffffff;
+    border: 3px solid #ffd000;
+    border-radius: 12px;
+    padding: 14px 16px;
+    z-index: 4;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.caixa-interacao h4 {
+    color: #ffd000;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+}
+
+.caixa-interacao p {
+    font-family: system-ui, -apple-system, sans-serif;
+    color: #f3f4f6;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    margin-bottom: 6px;
+    white-space: pre-line;
 }
 
 #jogo h2,
