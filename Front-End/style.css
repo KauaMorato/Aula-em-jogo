@@ -262,21 +262,16 @@ main {
 }
 
 .ponto-exclamacao {
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 56px;
     position: absolute;
     left: 520px;
     top: 120px;
-    background-color: #ffd000;
-    color: #1e1e2f;
-    border: 3px solid #1e1e2f;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    font-weight: bold;
-    box-shadow: 0 0 14px rgba(255, 208, 0, 0.8);
+    background-image: url('../assets/exclamacao.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    image-rendering: pixelated;
     animation: pulsarExclamacao 1s infinite alternate;
     z-index: 2;
 }
@@ -326,32 +321,24 @@ main {
 
 .caixa-interacao {
     position: absolute;
-    left: 16px;
-    right: 16px;
-    bottom: 16px;
-    background: rgba(30, 30, 47, 0.95);
-    color: #ffffff;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 560px;
+    background: rgba(20, 20, 32, 0.96);
     border: 3px solid #ffd000;
-    border-radius: 12px;
-    padding: 14px 16px;
+    border-radius: 14px;
+    padding: 10px;
     z-index: 4;
-    max-height: 220px;
-    overflow-y: auto;
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.55);
 }
 
-.caixa-interacao h4 {
-    color: #ffd000;
-    font-size: 0.95rem;
-    margin-bottom: 6px;
-}
-
-.caixa-interacao p {
-    font-family: system-ui, -apple-system, sans-serif;
-    color: #f3f4f6;
-    font-size: 0.88rem;
-    line-height: 1.45;
-    margin-bottom: 6px;
-    white-space: pre-line;
+.caixa-interacao img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
 }
 
 #jogo h2,

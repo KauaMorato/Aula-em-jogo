@@ -15,11 +15,20 @@ const PLAYER_SIZE = 64;
 const exclamacaoObj = {
     x: 520,
     y: 120,
-    width: 42,
-    height: 42
+    width: 48,
+    height: 64
 };
 const MARGEM_PROXIMIDADE = 28;
 let caixaAberta = false;
+
+// Imagens das atividades de cada fase (1 a 5)
+const IMAGENS_FASES = {
+    1: new URL("../assets/fases/fase 1.png", import.meta.url).href,
+    2: new URL("../assets/fases/fase 2.png", import.meta.url).href,
+    3: new URL("../assets/fases/fase 3.png", import.meta.url).href,
+    4: new URL("../assets/fases/fase 4.png", import.meta.url).href,
+    5: new URL("../assets/fases/fase 5.png", import.meta.url).href
+};
 
 // Músicas por fase (em loop ao interagir com "E" nas fases)
 const MUSICAS_POR_FASE = {
@@ -37,46 +46,18 @@ let audioAtual = null;
 let faseMusicaAtual = null;
 let audioMutado = false;
 
-// Textos das mensagens e introduções das 5 fases
-const NOTAS_SLIDES_KAUAN = [
-    "Nos slides tem umas caixa colorida, no segundo é verdade no terceiro é outra cor",
-    "Tira um print e joga no site la",
-    "Coloca o exclamação na onde te disse ontem, com aquele esquema de chegar perto e aparecer os negocio escrito",
-    "O que vai aparecer escrito é os bloco que falei nos slides"
-];
+function configurarImagemExclamacao() {
+    const elExclamacao = document.getElementById("pontoExclamacao");
+    if (!elExclamacao) return;
 
-const INTRODUCOES_FASES = {
-    1: {
-        titulo: "Fase 1 - Despertar do Código",
-        missao: "MISSÃO 01. PRIMEIROS PASSOS\nBem-vindo à sua jornada em Python! Aprenda a exibir mensagens com print() e a guardar dados em variáveis e tipos básicos.\nAbra a aba Documentação e estude a Aula 1 antes de iniciar o desafio!",
-        tema: "Comandos print(), input(), variáveis e tipos primitivos.",
-        material: "Guia da Aula e Exercício 1 no portal."
-    },
-    2: {
-        titulo: "Fase 2 - A Encruzilhada Lógica",
-        missao: "MISSÃO 02 TOMANDO DECISÕES\nO caminho ficou desafiador! Dê inteligência ao código fazendo cálculos e escolhendo rotas com if, elif e else.\nAbra a aba Documentação e consulte a Aula 2 antes de resolver!",
-        tema: "Operadores matemáticos, comparações e estruturas if, elif e else.",
-        material: "Guia da Aula 2 e Exercício 2 no portal."
-    },
-    3: {
-        titulo: "Fase 3 - Ciclo Infinito",
-        missao: "MISSÃO 03. PODER DA REPETIÇÃO\nAutomatize tarefas repetitivas dominando os laços while e for com range(), sem cair em um loop infinito!\nAbra a aba Documentação e leia a Aula 3 para avançar de fase!",
-        tema: "Laços while, for, função range(), break e continue.",
-        material: "Guia da Aula 3 e Exercício 3 no portal."
-    },
-    4: {
-        titulo: "Fase 4 - O Inventário do Herói",
-        missao: "MISSÃO 04. ORGANIZANDO DADOS\nOrganize seu inventário usando listas dinâmicas, tuplas protegidas e dicionários com chave e valor.\nAbra a aba Documentação e confira a Aula 4 antes de jogar!",
-        tema: "Coleções de dados: listas, tuplas imutáveis e dicionários.",
-        material: "Guia da Aula 4 e Exercício 4 no portal."
-    },
-    5: {
-        titulo: "Fase 5 - 0 Mestre das Funções",
-        missao: "MISSÃO 05. O DESAFIO FINAL\nPatamar máximo alcançado! Crie comandos reutilizáveis com def, envie parâmetros e devolva resultados com return.\nAbra a aba Documentação e revise a Aula 5 para concluir o jogo!",
-        tema: "Definição de funções com def, parâmetros, return e escopo.",
-        material: "Guia da Aula 5 e Exercício 5 no portal."
-    }
-};
+    const srcExclamacao = new URL("../assets/exclamacao.png", import.meta.url).href;
+    elExclamacao.textContent = "";
+    elExclamacao.style.backgroundImage = `url("${srcExclamacao}")`;
+    elExclamacao.style.left = `${exclamacaoObj.x}px`;
+    elExclamacao.style.top = `${exclamacaoObj.y}px`;
+    elExclamacao.style.width = `${exclamacaoObj.width}px`;
+    elExclamacao.style.height = `${exclamacaoObj.height}px`;
+}
 
 function colideComExclamacao(novoX, novoY) {
     return (
@@ -116,16 +97,10 @@ function renderizarConteudoInteracao() {
     const conteudo = document.getElementById("conteudoInteracao");
     if (!conteudo) return;
 
-    const infoFase = INTRODUCOES_FASES[fase] || INTRODUCOES_FASES[1];
-    const blocosSlides = NOTAS_SLIDES_KAUAN.map((txt) => `• ${txt}`).join("\n");
+    const faseSegura = Math.max(1, Math.min(fase, MAX_FASES));
+    const srcImagem = IMAGENS_FASES[faseSegura] || IMAGENS_FASES[1];
 
-    conteudo.innerHTML = `
-        <h4>${infoFase.titulo}</h4>
-        <p>${infoFase.missao}</p>
-        <p><strong>Tema da Fase:</strong> ${infoFase.tema}<br><strong>Material Indicado:</strong> ${infoFase.material}</p>
-        <p><strong>Blocos / Slides:</strong>\n${blocosSlides}</p>
-        <p><em>Aperte E novamente para fechar.</em></p>
-    `;
+    conteudo.innerHTML = `<img src="${srcImagem}" alt="Atividade da Fase ${faseSegura}">`;
 }
 
 function atualizarBotaoMute() {
@@ -605,6 +580,7 @@ document.addEventListener("keydown", function (event) {
 
 // INICIALIZAÇÃO E EVENTOS DE CLIQUE
 document.addEventListener("DOMContentLoaded", () => {
+    configurarImagemExclamacao();
     garantirElementoAviso();
     atualizarBotaoMute();
 
