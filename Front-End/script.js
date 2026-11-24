@@ -4,6 +4,7 @@ import { supabase } from '../src/lib/supabase.js';
 // Variáveis de estado global do jogo
 let usuarioAtual = null;
 let fase = 1;
+const MAX_FASES = 5;
 let authModo = "login";
 
 // Posição do personagem
@@ -162,7 +163,7 @@ async function entrar() {
         if (docError) throw docError;
 
         if (docSnap && docSnap.Fase) {
-            fase = docSnap.Fase;
+            fase = Math.min(docSnap.Fase, MAX_FASES);
         } else {
             fase = 1;
         }
@@ -253,17 +254,19 @@ async function cadastrar() {
 async function salvarProgresso(novaFase) {
     if (!usuarioAtual) return;
 
+    const faseValidada = Math.max(1, Math.min(novaFase, MAX_FASES));
+
     try {
         const { error } = await supabase
             .from("Cadastro")
             .upsert({
                 id: usuarioAtual,
-                Fase: novaFase
+                Fase: faseValidada
             }, { onConflict: "id" });
 
         if (error) throw error;
 
-        fase = novaFase;
+        fase = faseValidada;
         atualizarInterfaceProgresso();
     } catch (erro) {
         console.error("Erro ao salvar progresso", erro);
@@ -298,7 +301,7 @@ async function restaurarSessao() {
             .maybeSingle();
 
         if (docError) throw docError;
-        fase = docSnap?.Fase || 1;
+        fase = Math.min(docSnap?.Fase || 1, MAX_FASES);
 
         const elLogin = document.getElementById("login");
         const elJogo = document.getElementById("jogo");
@@ -315,8 +318,10 @@ async function restaurarSessao() {
 }
 
 function avancarFase() {
-    const novaFase = fase + 1;
-    salvarProgresso(novaFase);
+    if (fase < MAX_FASES) {
+        const novaFase = fase + 1;
+        salvarProgresso(novaFase);
+    }
 }
 
 function voltarFase() {
@@ -329,11 +334,17 @@ function voltarFase() {
 function atualizarInterfaceProgresso() {
     const elFase = document.getElementById("faseAtual");
     const elBarra = document.getElementById("barraProgresso");
+    const btnAvancar = document.getElementById("btnAvancar");
 
     if (elFase) elFase.innerText = fase;
+
     if (elBarra) {
-        const porcentagem = Math.min((fase - 1) * 10, 100);
-        elBarra.style.width = `${porcentagem}%`;
+        const porcentagem = ((fase - 1) / (MAX_FASES - 1)) * 100;
+        elBarra.style.width = `${Math.min(Math.max(porcentagem, 0), 100)}%`;
+    }
+
+    if (btnAvancar) {
+        btnAvancar.disabled = (fase >= MAX_FASES);
     }
 }
 
